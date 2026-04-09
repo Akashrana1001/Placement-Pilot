@@ -4,10 +4,11 @@ node_modules/
 .pnp.js
 
 # Environment variables — NEVER commit these
-.env
+
 .env.local
 .env.production
 server/.env
+.env
 # Build output
 dist/
 build/
