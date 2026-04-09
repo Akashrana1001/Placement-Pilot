@@ -22,7 +22,17 @@ export const ThoughtStream = ({ jobId, title = "Agent Live Feed" }) => {
   }
 
   return (
-    <GlassCard title={title} icon={BrainCircuit} className="h-full min-h-[400px] flex flex-col relative overflow-hidden">
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      style={{ height: '100%' }}
+    >
+      <GlassCard 
+        title={title} 
+        icon={BrainCircuit} 
+        className={`h-full min-h-[400px] flex flex-col relative overflow-hidden transition-colors duration-1000 ${latestStep?.isDone ? 'border-emerald-500/50 shadow-[0_0_15px_rgba(16,185,129,0.2)]' : ''}`}
+      >
       {isStreaming && (
         <div className="absolute top-6 right-6 flex items-center gap-2">
           <div className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -40,14 +50,27 @@ export const ThoughtStream = ({ jobId, title = "Agent Live Feed" }) => {
           >
             {step.thought && (
               <div>
-                <span className="bg-sky-50 text-sky-600 px-2 py-0.5 rounded-md text-xs mr-2 border border-sky-100 font-semibold">THINK</span>
+                <motion.span 
+                  animate={{ opacity: [1, 0.7, 1] }} 
+                  transition={{ repeat: Infinity, duration: 2 }}
+                  className="bg-sky-50 text-sky-600 px-2 py-0.5 rounded-md text-xs mr-2 border border-sky-100 font-semibold"
+                >
+                  THINK
+                </motion.span>
                 <span className="text-slate-600">{step.thought}</span>
               </div>
             )}
             
             {step.action && (
               <div>
-                <span className="bg-amber-50 text-amber-600 px-2 py-0.5 rounded-md text-xs mr-2 border border-amber-100 font-semibold">ACT</span>
+                <motion.span 
+                  initial={{ backgroundColor: '#fef3c7' }}
+                  animate={{ backgroundColor: ['#fde68a', '#fef3c7'] }}
+                  transition={{ duration: 0.5 }}
+                  className="bg-amber-50 text-amber-600 px-2 py-0.5 rounded-md text-xs mr-2 border border-amber-100 font-semibold"
+                >
+                  ACT
+                </motion.span>
                 <span className="text-amber-700 font-medium">{step.action}</span>
                 <ExpandableData data={step.actionInput} />
               </div>
@@ -55,8 +78,22 @@ export const ThoughtStream = ({ jobId, title = "Agent Live Feed" }) => {
 
             {step.observation && (
               <div>
-                <span className="bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-md text-xs mr-2 border border-emerald-100 font-semibold">OBSERVE</span>
-                <span className="text-slate-500">{step.observation.length > 100 ? step.observation.substring(0, 100) + '...' : step.observation}</span>
+                <motion.span 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2, duration: 0.3 }}
+                  className="bg-emerald-50 text-emerald-600 px-2 py-0.5 rounded-md text-xs mr-2 border border-emerald-100 font-semibold"
+                >
+                  OBSERVE
+                </motion.span>
+                <motion.span 
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
+                  className="text-slate-500"
+                >
+                  {step.observation.length > 100 ? step.observation.substring(0, 100) + '...' : step.observation}
+                </motion.span>
               </div>
             )}
 
@@ -78,7 +115,8 @@ export const ThoughtStream = ({ jobId, title = "Agent Live Feed" }) => {
         )}
         <div ref={endRef} />
       </div>
-    </GlassCard>
+      </GlassCard>
+    </motion.div>
   );
 };
 

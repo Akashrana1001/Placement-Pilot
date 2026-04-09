@@ -11,6 +11,24 @@ import { StatusBadge } from '../components/common/StatusBadge';
 import { ThoughtStream } from '../components/agent/ThoughtStream';
 import { useAgentStream } from '../hooks/useAgentStream';
 
+const AnimatedNumber = ({ value }) => {
+  const [display, setDisplay] = useState(0);
+  React.useEffect(() => {
+    let end = parseFloat(value) || 0;
+    if (end === 0) return setDisplay(0);
+    let startTimestamp = null;
+    const step = (timestamp) => {
+      if (!startTimestamp) startTimestamp = timestamp;
+      const progress = Math.min((timestamp - startTimestamp) / 1000, 1);
+      const ease = 1 - Math.pow(1 - progress, 4);
+      setDisplay(Math.floor(end * ease));
+      if (progress < 1) window.requestAnimationFrame(step);
+    };
+    window.requestAnimationFrame(step);
+  }, [value]);
+  return <>{display}</>;
+};
+
 export const StudentDashboard = () => {
   const queryClient = useQueryClient();
   const navigate = useNavigate();
@@ -329,35 +347,50 @@ export const StudentDashboard = () => {
         </div>
 
         {/* Quick Stats */}
-        <div className="grid grid-cols-2 gap-4">
-          <GlassCard className="p-4 flex flex-col items-center text-center">
-            <CheckCircle className="w-6 h-6 text-success mb-2" />
-            <span className="text-2xl font-bold">
-              {progress?.planProgress?.tasksCompleted || 0}
-            </span>
-            <span className="text-xs text-gray-400">Tasks Done</span>
-          </GlassCard>
+        <motion.div 
+          className="grid grid-cols-2 gap-4"
+          initial="hidden"
+          animate="visible"
+          variants={{
+            visible: { transition: { staggerChildren: 0.1 } }
+          }}
+        >
+          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
+            <GlassCard className="p-4 flex flex-col items-center text-center h-full">
+              <CheckCircle className="w-6 h-6 text-success mb-2" />
+              <span className="text-2xl font-bold">
+                <AnimatedNumber value={progress?.planProgress?.tasksCompleted || 0} />
+              </span>
+              <span className="text-xs text-gray-400">Tasks Done</span>
+            </GlassCard>
+          </motion.div>
 
-          <GlassCard className="p-4 flex flex-col items-center text-center">
-            <Target className="w-6 h-6 text-cyber-blue mb-2" />
-            <span className="text-2xl font-bold">
-              {progress?.avgInterviewScore || 0}/10
-            </span>
-            <span className="text-xs text-gray-400">Avg Score</span>
-          </GlassCard>
+          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
+            <GlassCard className="p-4 flex flex-col items-center text-center h-full">
+              <Target className="w-6 h-6 text-cyber-blue mb-2" />
+              <span className="text-2xl font-bold">
+                <AnimatedNumber value={progress?.avgInterviewScore || 0} />/10
+              </span>
+              <span className="text-xs text-gray-400">Avg Score</span>
+            </GlassCard>
+          </motion.div>
 
-          <GlassCard className="p-4 flex flex-col items-center text-center">
-            <Zap className={`w-6 h-6 mb-2 ${(progress?.riskScore || 0) > 60 ? 'text-danger' : 'text-warning'}`} />
-            <span className="text-2xl font-bold">{progress?.riskScore || 0}</span>
-            <span className="text-xs text-gray-400">Risk Score</span>
-          </GlassCard>
+          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
+            <GlassCard className="p-4 flex flex-col items-center text-center h-full">
+              <Zap className={`w-6 h-6 mb-2 ${(progress?.riskScore || 0) > 60 ? 'text-danger' : 'text-warning'}`} />
+              <span className="text-2xl font-bold"><AnimatedNumber value={progress?.riskScore || 0} /></span>
+              <span className="text-xs text-gray-400">Risk Score</span>
+            </GlassCard>
+          </motion.div>
 
-          <GlassCard className="p-4 flex flex-col items-center text-center">
-            <Users className="w-6 h-6 text-cyber-cyan mb-2" />
-            <span className="text-2xl font-bold">{progress?.totalInterviews || 0}</span>
-            <span className="text-xs text-gray-400">Interviews</span>
-          </GlassCard>
-        </div>
+          <motion.div variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}>
+            <GlassCard className="p-4 flex flex-col items-center text-center h-full">
+              <Users className="w-6 h-6 text-cyber-cyan mb-2" />
+              <span className="text-2xl font-bold"><AnimatedNumber value={progress?.totalInterviews || 0} /></span>
+              <span className="text-xs text-gray-400">Interviews</span>
+            </GlassCard>
+          </motion.div>
+        </motion.div>
       </div>
     </motion.div>
   );

@@ -1,11 +1,13 @@
 import React from 'react';
-import { Outlet, Navigate } from 'react-router-dom';
+import { Outlet, Navigate, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext.jsx';
 import { Navbar } from './Navbar.jsx';
 import { Sidebar } from './SideBar.jsx';
 
 export const AppLayout = () => {
   const { isAuthenticated, loading } = useAuth();
+  const location = useLocation();
 
   if (loading) return (
     <div className="min-h-screen bg-slate-50 flex items-center justify-center text-sky-500 font-medium">
@@ -23,7 +25,17 @@ export const AppLayout = () => {
       <Sidebar />
       <main className="flex-1 ml-16 mt-16 p-6 overflow-y-auto">
         <div className="max-w-7xl mx-auto">
-          <Outlet />
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={location.pathname}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15 }}
+            >
+              <Outlet />
+            </motion.div>
+          </AnimatePresence>
         </div>
       </main>
     </div>

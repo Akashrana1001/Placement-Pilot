@@ -1,4 +1,5 @@
 import React from 'react';
+import { motion } from 'framer-motion';
 
 export const StatusBadge = ({ variant = 'info', text, pulse = false }) => {
   const variants = {
@@ -10,9 +11,16 @@ export const StatusBadge = ({ variant = 'info', text, pulse = false }) => {
   };
 
   return (
-    <span className={`px-2.5 py-1 rounded-lg text-xs font-medium border flex items-center gap-1.5 ${variants[variant]}`}>
-      {pulse && <span className={`w-1.5 h-1.5 rounded-full bg-current animate-pulse`} />}
+    <motion.span 
+      initial={{ opacity: 0, scale: 0.8 }}
+      animate={pulse ? { opacity: 1, scale: [1, 1.05, 1] } : { opacity: 1, scale: 1 }}
+      transition={pulse 
+        ? { repeat: Infinity, duration: 1.5, ease: "easeInOut" }
+        : { type: 'spring', stiffness: 400, damping: 25 }}
+      className={`px-2.5 py-1 rounded-lg text-xs font-medium border flex items-center gap-1.5 ${variants[variant]}`}
+    >
+      {pulse && <span className={`w-1.5 h-1.5 rounded-full bg-current`} />}
       {text}
-    </span>
+    </motion.span>
   );
 };

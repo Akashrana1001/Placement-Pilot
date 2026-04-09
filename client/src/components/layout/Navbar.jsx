@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from 'react';
-import { Rocket, LogOut } from 'lucide-react';
+import { Rocket, LogOut, Bell } from 'lucide-react';
+import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';
 import api from '../../lib/api';
 
@@ -25,6 +25,16 @@ export const Navbar = () => {
           <div className="flex items-center gap-2">
             <span className={`w-2 h-2 rounded-full ${status} animate-pulse`} title="System Status"></span>
           </div>
+          
+          <motion.div 
+            className="relative cursor-pointer text-slate-400 hover:text-amber-500 transition-colors"
+            whileHover={{ rotate: [0, -10, 10, -10, 10, 0] }}
+            transition={{ duration: 0.5 }}
+          >
+            <Bell className="w-5 h-5" />
+            <span className="absolute -top-1 -right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
+          </motion.div>
+
           <div className="flex items-center gap-4 pl-4 border-l border-slate-200">
             <span className="text-sm font-medium text-slate-700">{user.name}</span>
             <span className={`text-xs px-2.5 py-1 rounded-lg font-semibold
@@ -33,9 +43,14 @@ export const Navbar = () => {
                 : 'bg-sky-50 text-sky-600 border border-sky-100'}`}>
               {user.role.toUpperCase()}
             </span>
-            <button onClick={logout} className="text-slate-400 hover:text-slate-700 transition-colors">
+            <motion.button 
+              whileHover={{ scale: 1.1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={logout} 
+              className="text-slate-400 hover:text-danger hover:bg-red-50 p-1.5 rounded-lg transition-colors"
+            >
               <LogOut className="w-4 h-4" />
-            </button>
+            </motion.button>
           </div>
         </div>
       )}

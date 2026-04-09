@@ -1,5 +1,6 @@
 import React from 'react';
 import { Loader2 } from 'lucide-react';
+import { motion } from 'framer-motion';
 
 export const Button = ({ children, variant = 'primary', size = 'md', isLoading, className = '', ...props }) => {
   const base = "font-semibold transition-all duration-200 flex justify-center items-center gap-2 rounded-xl disabled:opacity-50 disabled:cursor-not-allowed active:scale-[0.98]";
@@ -11,9 +12,16 @@ export const Button = ({ children, variant = 'primary', size = 'md', isLoading, 
   };
 
   return (
-    <button className={`${base} ${sizes[size]} ${variants[variant]} ${className}`} disabled={isLoading || props.disabled} {...props}>
-      {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
+    <motion.button 
+      className={`${base} ${sizes[size]} ${variants[variant]} ${className}`} 
+      disabled={isLoading || props.disabled}
+      whileHover={{ scale: 1.02, filter: 'brightness(1.05)' }}
+      whileTap={{ scale: 0.97 }}
+      transition={{ type: "spring", stiffness: 400, damping: 25 }}
+      {...props}
+    >
+      {isLoading && <motion.div animate={{ opacity: [0.5, 1, 0.5] }} transition={{ repeat: Infinity, duration: 1.5 }}><Loader2 className="w-4 h-4 animate-spin" /></motion.div>}
       {children}
-    </button>
+    </motion.button>
   );
 };
