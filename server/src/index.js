@@ -29,6 +29,7 @@ import { startSentinelCron } from './cron/sentinel.cron.js';
 import './workers/agent.worker.js';
 
 const app = express();
+app.set('trust proxy', 1); // Trust Render load balancer to forward correct IP addresses for rate limiting
 const httpServer = http.createServer(app);
 
 // ==========================================
