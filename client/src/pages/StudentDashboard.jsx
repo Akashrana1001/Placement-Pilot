@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { FileText, Rocket, Target, Zap, Activity, Users, CheckCircle, Upload, FileUp } from 'lucide-react';
+import { FileText, Rocket, Target, Zap, Activity, Users, CheckCircle, Upload, FileUp, Loader2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import api from '../lib/api';
 import { GlassCard } from '../components/common/GlassCard';
@@ -12,7 +13,9 @@ import { useAgentStream } from '../hooks/useAgentStream';
 
 export const StudentDashboard = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const fileInputRef = useRef(null);
+  const redirecting = useRef(false);
 
   const [resumeText, setResumeText]   = useState('');
   const [activeJobId, setActiveJobId] = useState(null);
@@ -29,7 +32,12 @@ export const StudentDashboard = () => {
 
   const { data: progress } = useQuery({
     queryKey: ['progress'],
-    queryFn: async () => (await api.get('/student/progress')).data.data
+    queryFn: async () => (await api.get('/student/progress')).data.data,
+    refetchInterval: (query) => {
+      const data = query.state?.data;
+      if (analysis?.gapReport && (!data?.planProgress || data.planProgress.totalTasks === 0)) return 3000;
+      return false;
+    }
   });
 
   // ── Mutations ─────────────────────────────────────────────────────────────
@@ -92,6 +100,15 @@ export const StudentDashboard = () => {
       return () => clearTimeout(timer);
     }
   }, [isStreaming, activeJobId, queryClient]);
+
+  // ── Auto Redirect to Battle Plan ──────────────────────────────────────────
+  React.useEffect(() => {
+    if (analysis?.gapReport && progress?.planProgress?.totalTasks > 0 && !redirecting.current) {
+      redirecting.current = true;
+      toast.success('⚔️ Your Battle Plan is ready!');
+      setTimeout(() => navigate('/battle-plan'), 2000);
+    }
+  }, [analysis, progress, navigate]);
 
   const gapReport = analysis?.gapReport;
   const matches   = analysis?.companyMatches;
@@ -259,14 +276,19 @@ export const StudentDashboard = () => {
                   </div>
                 )}
 
-                <Button
-                  variant="secondary"
-                  className="w-full border-cyber-cyan/50 text-cyber-cyan hover:bg-cyber-cyan/10"
-                  isLoading={generatePlan.isPending}
-                  onClick={() => generatePlan.mutate()}
-                >
-                  <Target className="w-4 h-4" /> Generate Battle Plan
-                </Button>
+                {(!progress?.planProgress || progress.planProgress.totalTasks === 0) ? (
+                  <div className="flex bg-slate-100 p-4 rounded-xl items-center gap-3 w-full justify-center text-slate-600 font-bold mb-4 animate-pulse">
+                    <Loader2 className="w-5 h-5 animate-spin" /> Generating your customized Battle Plan... Please wait.
+                  </div>
+                ) : (
+                  <Button
+                    variant="secondary"
+                    className="w-full border-sky-500/50 text-sky-600 hover:bg-sky-50 transition-colors"
+                    onClick={() => navigate('/battle-plan')}
+                  >
+                    <Target className="w-4 h-4" /> View Battle Plan
+                  </Button>
+                )}
               </div>
             </GlassCard>
           </motion.div>

@@ -5,8 +5,10 @@ import { connectDB } from '../config/database.js';
 import { logger } from '../utils/logger.js';
 import { ReActOrchestrator } from '../agent/orchestrator.js';
 import { ToolRegistry } from '../agent/tools/registry.js';
+import { addAgentJob } from '../queues/agentQueue.js';
 
 // Models
+import { User } from '../models/User.js';
 import { Resume } from '../models/Resume.js';
 import { PrepPlan } from '../models/PrepPlan.js';
 import { MockInterview } from '../models/MockInterview.js';
@@ -116,6 +118,30 @@ const worker = new Worker('agent-jobs', async (job) => {
               : [];
             await latestResume.save();
             logger.info(`💾 Saved Recon Analysis to Resume ${latestResume._id} for User ${userId}`);
+
+            // ⭐ FIX: Compute dynamic Risk Score and update User model!
+            const riskScoreRaw = (data.criticalGaps?.length || 0) * 20 + (data.weakAreas?.length || 0) * 10;
+            const updatedRiskScore = Math.min(100, riskScoreRaw);
+            await User.findByIdAndUpdate(userObjectId, { riskScore: updatedRiskScore });
+            logger.info(`⚠️ Calculated Risk Score: ${updatedRiskScore} for User ${userId}`);
+
+            // ⭐ FIX: Auto-chain Strategy Job!
+            // Pass the extracted intelligence directly to the Strategy Agent's input payload
+            const strategyPayload = JSON.stringify({
+              weakAreas: data.weakAreas || [],
+              criticalGaps: data.criticalGaps || [],
+              companyMatches: data.companyMatches || [],
+              recommendations: data.recommendations || []
+            });
+
+            await addAgentJob({
+              userId: userId,
+              agentType: 'strategy',
+              input: strategyPayload,
+              sessionId: sessionId
+            });
+            logger.info(`🔗 Auto-chained Strategy Agent job for User ${userId}`);
+
           } else {
             logger.warn(`⚠️ No resume document found to update for User ${userId}`);
           }
