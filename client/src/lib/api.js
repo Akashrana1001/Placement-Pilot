@@ -1,6 +1,14 @@
 import axios from 'axios';
 
-const api = axios.create({ baseURL: import.meta.env.VITE_API_URL || '/api' });
+const getBaseUrl = () => {
+  const url = import.meta.env.VITE_API_URL;
+  if (!url) return '/api';
+  if (url.endsWith('/api')) return url;
+  if (url.endsWith('/')) return `${url}api`;
+  return `${url}/api`;
+};
+
+const api = axios.create({ baseURL: getBaseUrl() });
 
 api.interceptors.request.use((config) => {
   const token = localStorage.getItem('pp_token');
