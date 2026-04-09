@@ -92,9 +92,29 @@ const worker = new Worker('agent-jobs', async (job) => {
   if (result.finalAnswer) {
     try {
       // Extract JSON from the finalAnswer string
-      const jsonMatch = result.finalAnswer.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const data = JSON.parse(jsonMatch[0]);
+      let data = null;
+      try {
+        // Find the FIRST valid complete JSON object
+        const str = result.finalAnswer;
+        let depth = 0;
+        let start = -1;
+        for (let i = 0; i < str.length; i++) {
+          if (str[i] === '{') {
+            if (depth === 0) start = i;
+            depth++;
+          } else if (str[i] === '}') {
+            depth--;
+            if (depth === 0 && start !== -1) {
+              data = JSON.parse(str.slice(start, i + 1));
+              break;
+            }
+          }
+        }
+      } catch (parseErr) {
+        logger.error(`❌ JSON Parse Error: ${parseErr.message}`);
+      }
+
+      if (data) {
 
         // ── 1. RECON: Update the LATEST Resume document ──
         // DO NOT upsert — find the specific resume created by the controller
@@ -110,11 +130,11 @@ const worker = new Worker('agent-jobs', async (job) => {
             };
             latestResume.companyMatches = Array.isArray(data.companyMatches)
               ? data.companyMatches.map(m => ({
-                  companyName: m?.companyName || 'Unknown',
-                  matchScore: typeof m?.matchScore === 'number' ? m.matchScore : 0,
-                  matchedSkills: Array.isArray(m?.matchedSkills) ? m.matchedSkills : [],
-                  missingSkills: Array.isArray(m?.missingSkills) ? m.missingSkills : []
-                }))
+                companyName: m?.companyName || 'Unknown',
+                matchScore: typeof m?.matchScore === 'number' ? m.matchScore : 0,
+                matchedSkills: Array.isArray(m?.matchedSkills) ? m.matchedSkills : [],
+                missingSkills: Array.isArray(m?.missingSkills) ? m.missingSkills : []
+              }))
               : [];
             await latestResume.save();
             logger.info(`💾 Saved Recon Analysis to Resume ${latestResume._id} for User ${userId}`);
