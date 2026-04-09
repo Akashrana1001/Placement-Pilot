@@ -1,3 +1,4 @@
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { Rocket, LogOut, Bell } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { useAuth } from '../../contexts/AuthContext';

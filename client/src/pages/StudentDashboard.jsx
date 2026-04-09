@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -13,7 +13,7 @@ import { useAgentStream } from '../hooks/useAgentStream';
 
 const AnimatedNumber = ({ value }) => {
   const [display, setDisplay] = useState(0);
-  React.useEffect(() => {
+  useEffect(() => {
     let end = parseFloat(value) || 0;
     if (end === 0) return setDisplay(0);
     let startTimestamp = null;
@@ -34,10 +34,10 @@ export const StudentDashboard = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const redirecting = useRef(false);
-  const [resumeText, setResumeText]     = useState('');
-  const [activeJobId, setActiveJobId]   = useState(null);
-  const [inputMode, setInputMode]       = useState('text');
-  const [dragOver, setDragOver]         = useState(false);
+  const [resumeText, setResumeText] = useState('');
+  const [activeJobId, setActiveJobId] = useState(null);
+  const [inputMode, setInputMode] = useState('text');
+  const [dragOver, setDragOver] = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
 
   // ── Queries ──────────────────────────────────────────────────────────────
@@ -109,7 +109,7 @@ export const StudentDashboard = () => {
   // ── Auto-refresh after agent stream ends ──────────────────────────────────
   const { isStreaming } = useAgentStream(activeJobId);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (activeJobId && !isStreaming) {
       const timer = setTimeout(() => {
         queryClient.invalidateQueries(['analysis']);
@@ -122,7 +122,7 @@ export const StudentDashboard = () => {
   // ── Auto Redirect to Battle Plan ──────────────────────────────────────────
   // ⭐ BUG FIX: Added `activeJobId &&` so redirect only happens after a fresh
   //    upload — not every time the page loads when plan already exists.
-  React.useEffect(() => {
+  useEffect(() => {
     if (
       activeJobId &&
       analysis?.gapReport &&
@@ -135,8 +135,8 @@ export const StudentDashboard = () => {
     }
   }, [analysis, progress, navigate, activeJobId]);
 
-  const gapReport   = analysis?.gapReport;
-  const matches     = analysis?.companyMatches;
+  const gapReport = analysis?.gapReport;
+  const matches = analysis?.companyMatches;
   const isUploading = uploadResume.isPending || uploadResumeFile.isPending;
 
   return (
@@ -347,7 +347,7 @@ export const StudentDashboard = () => {
         </div>
 
         {/* Quick Stats */}
-        <motion.div 
+        <motion.div
           className="grid grid-cols-2 gap-4"
           initial="hidden"
           animate="visible"

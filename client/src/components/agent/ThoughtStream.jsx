@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { motion } from 'framer-motion';
 import { BrainCircuit, CheckCircle2, ChevronDown, ChevronUp } from 'lucide-react';
 import { useAgentStream } from '../../hooks/useAgentStream';
