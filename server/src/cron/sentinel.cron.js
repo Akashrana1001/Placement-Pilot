@@ -5,8 +5,8 @@ import { addAgentJob } from '../queues/agentQueue.js';
 import { logger } from '../utils/logger.js';
 
 export const startSentinelCron = () => {
-  // Run every 2 minutes for the hackathon demo
-  cron.schedule('*/2 * * * *', async () => {
+  // Run every 30 minutes to conserve Groq TPM API limits for actual user traffic
+  cron.schedule('*/30 * * * *', async () => {
     logger.info('👁️ SENTINEL CRON: Scanning for at-risk students...');
     try {
       // Find students who have a high risk score (over 60)
@@ -33,5 +33,5 @@ export const startSentinelCron = () => {
     }
   });
 
-  logger.info('🕒 Sentinel Cron mounted. Will scan every 2 mins.');
+  logger.info('🕒 Sentinel Cron mounted. Will scan every 30 mins to conserve tokens.');
 };

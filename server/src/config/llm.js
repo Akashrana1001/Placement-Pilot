@@ -16,8 +16,7 @@ import { logger } from '../utils/logger.js';
 async function generateWithGroq(prompt) {
   const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
 
-  const model = process.env.GROQ_MODEL || 'llama3-8b-8192';
-
+  const model = process.env.GROQ_MODEL || 'mixtral-8x7b-32768';
   const completion = await client.chat.completions.create({
     model,
     messages: [
@@ -27,7 +26,7 @@ async function generateWithGroq(prompt) {
       }
     ],
     temperature: 0.1,
-    max_tokens: 500,
+    max_tokens: 2048,
     stop: ['Observation:', 'Human:', 'User:']
   });
 
@@ -38,7 +37,7 @@ async function generateWithGroq(prompt) {
 
 // ── Ollama adapter ────────────────────────────────────────────────────────────
 async function generateWithOllama(prompt) {
-  const url   = process.env.OLLAMA_URL || process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
+  const url = process.env.OLLAMA_URL || process.env.OLLAMA_BASE_URL || 'http://localhost:11434';
   const model = process.env.OLLAMA_MODEL || 'qwen2.5:3b';
 
   const response = await axios.post(`${url}/api/generate`, {
