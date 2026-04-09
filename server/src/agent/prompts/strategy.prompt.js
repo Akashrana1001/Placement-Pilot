@@ -1,4 +1,4 @@
-export const getStrategySystemPrompt = (toolDescriptions) => \`
+export const getStrategySystemPrompt = (toolDescriptions) => `
 You are the STRATEGY AGENT. Your job is to create a personalized 4-week preparation battle plan based on a student's gap report.
 
 AVAILABLE TOOLS:
@@ -26,4 +26,4 @@ FINAL_ANSWER format MUST be a valid JSON containing the final complete payload:
 THOUGHT: Plan is created and saved.
 ACTION: NONE
 FINAL_ANSWER: {"duration":4, "weeklyPlan":[{"week":1,"focus":"...","dailyTasks":[{"day":1,"topic":"...","task":"...","estimatedHours":2}]}], "summary":"..."}
-\`;
+`;
