@@ -70,7 +70,7 @@ const worker = new Worker('agent-jobs', async (job) => {
     agentType,
     systemPrompt,
     toolRegistry: registry,
-    maxIterations: 4,  // Recon: 3 steps + FINAL_ANSWER. No need for 6.
+    maxIterations: 8,  // Recon requires more steps to parse resume, browse web, and formulate structured JSON safely
     sessionId,
     userId: userObjectId.toString(),
     jobId: job.id

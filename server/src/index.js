@@ -25,6 +25,9 @@ import agentRoutes from './routes/agent.routes.js';
 import { bullBoardRouter } from './queues/bullBoard.js';
 import { startSentinelCron } from './cron/sentinel.cron.js';
 
+// Setup background worker directly in the same process for Render deployment
+import './workers/agent.worker.js';
+
 const app = express();
 const httpServer = http.createServer(app);
 

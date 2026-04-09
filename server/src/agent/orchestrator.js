@@ -151,13 +151,25 @@ export class ReActOrchestrator {
     const thought = thoughtMatch ? thoughtMatch[1].trim() : 'Reasoning...';
 
     // ── Check for FINAL_ANSWER (takes priority — exit early) ──
-    const finalAnswerMatch = text.match(/FINAL_ANSWER:\s*([\s\S]*)$/i);
+    const finalAnswerMatch = text.match(/FINAL[_\s]ANSWER:\s*([\s\S]*)$/i);
     if (finalAnswerMatch) {
       let answer = finalAnswerMatch[1].trim()
         .replace(/^```(?:json)?\s*/i, '')
         .replace(/\s*```$/, '')
         .trim();
       return { thought, action: null, actionInput: null, finalAnswer: answer };
+    }
+
+    // ── Check for raw JSON block (fallback if LLM forgot the FINAL_ANSWER prefix) ──
+    const rawJsonMatch = text.match(/```(?:json)?\s*(\{[\s\S]*?\})\s*```/);
+    if (rawJsonMatch) {
+      return { thought, action: null, actionInput: null, finalAnswer: rawJsonMatch[1].trim() };
+    }
+
+    // ── Check if it output just a JSON string at the end ──
+    const trailingJson = text.match(/(\{[\s\S]*?\})\s*$/);
+    if (!actionMatch && trailingJson) {
+      return { thought, action: null, actionInput: null, finalAnswer: trailingJson[1].trim() };
     }
 
     // ── Extract ACTION ──
