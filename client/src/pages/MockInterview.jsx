@@ -167,7 +167,7 @@ export const MockInterview = () => {
                   </select>
                 </div>
 
-                <div className="bg-navy-900/60 rounded-lg p-4 border border-white/5 space-y-2 text-sm text-gray-400">
+                <div className="bg-slate-50 rounded-xl p-4 border border-slate-100 space-y-2 text-sm text-slate-500">
                   <p>✅ 5 randomized questions per session</p>
                   <p>⚡ Instant AI-powered evaluation</p>
                   <p>💾 Results saved to your profile automatically</p>
@@ -192,7 +192,7 @@ export const MockInterview = () => {
               <span className="text-sm text-gray-400 whitespace-nowrap font-mono">
                 {currentIdx + 1} / {questions.length}
               </span>
-              <div className="flex-1 h-2 bg-navy-900 rounded-full overflow-hidden">
+              <div className="flex-1 h-2 bg-slate-100 rounded-full overflow-hidden">
                 <motion.div
                   className="h-full bg-gradient-to-r from-cyber-cyan to-cyber-blue rounded-full"
                   initial={{ width: `${(currentIdx / questions.length) * 100}%` }}
@@ -211,7 +211,7 @@ export const MockInterview = () => {
                 <div className="p-2 rounded-lg bg-cyber-cyan/10 shrink-0">
                   <Mic className="w-6 h-6 text-cyber-cyan" />
                 </div>
-                <h2 className="text-xl font-medium leading-relaxed text-white">{currentQ.question}</h2>
+                <h2 className="text-xl font-medium leading-relaxed text-slate-800">{currentQ.question}</h2>
               </div>
             </GlassCard>
 
@@ -292,8 +292,8 @@ export const MockInterview = () => {
 
             <GlassCard className="text-center p-10 border-success/20">
               <Award className="w-16 h-16 text-success mx-auto mb-4" />
-              <h2 className="text-3xl font-bold text-white mb-2">Interview Complete!</h2>
-              <p className="text-gray-400 max-w-md mx-auto">{result.recommendation}</p>
+              <h2 className="text-3xl font-extrabold text-slate-800 mb-2">Interview Complete!</h2>
+              <p className="text-slate-500 max-w-md mx-auto font-medium">{result.recommendation}</p>
 
               {/* Score Donut */}
               <div className="flex justify-center my-8">
@@ -309,8 +309,8 @@ export const MockInterview = () => {
                     </Pie>
                   </PieChart>
                   <div className="absolute inset-0 flex flex-col items-center justify-center">
-                    <span className="text-5xl font-bold text-white">{result.overallScore}</span>
-                    <span className="text-gray-500 text-sm">/ 10</span>
+                    <span className="text-5xl font-extrabold text-slate-800">{result.overallScore}</span>
+                    <span className="text-slate-400 text-sm font-semibold mt-1">/ 10</span>
                   </div>
                 </div>
               </div>
@@ -351,13 +351,13 @@ export const MockInterview = () => {
 
               {/* Per-question breakdown */}
               <div className="text-left mb-8 space-y-2">
-                <h3 className="text-white font-semibold mb-3 text-left">📋 Question Breakdown</h3>
+                <h3 className="text-slate-800 font-bold mb-3 text-left tracking-tight">📋 Question Breakdown</h3>
                 {answered.map((q, i) => (
-                  <div key={i} className="flex items-center gap-3 bg-navy-900 rounded-lg p-3 border border-white/5">
-                    <span className={`text-sm font-bold w-12 shrink-0 ${q.score >= 7 ? 'text-success' : q.score >= 5 ? 'text-warning' : 'text-danger'}`}>
+                  <div key={i} className="flex items-center gap-3 bg-slate-50 rounded-xl p-3 border border-slate-200">
+                    <span className={`text-sm font-bold w-12 shrink-0 ${q.score >= 7 ? 'text-emerald-600' : q.score >= 5 ? 'text-amber-500' : 'text-red-500'}`}>
                       {q.score}/10
                     </span>
-                    <p className="text-gray-400 text-sm line-clamp-1 flex-1">{q.question}</p>
+                    <p className="text-slate-600 text-sm line-clamp-1 flex-1 font-medium">{q.question}</p>
                   </div>
                 ))}
               </div>

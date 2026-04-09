@@ -114,8 +114,8 @@ export const StudentDashboard = () => {
                 onClick={() => setInputMode(mode)}
                 className={`px-4 py-1.5 rounded-md text-sm font-medium transition-all duration-200
                   ${inputMode === mode
-                    ? 'bg-cyber-cyan/20 text-cyber-cyan border border-cyber-cyan/30'
-                    : 'text-gray-400 hover:text-white'}`}
+                    ? 'bg-sky-50 text-sky-600 border border-sky-100 shadow-sm'
+                    : 'text-slate-500 hover:text-slate-800'}`}
               >
                 {mode === 'text' ? '✏️ Paste Text' : '📎 Upload File'}
               </button>
@@ -170,16 +170,16 @@ export const StudentDashboard = () => {
                     <>
                       <CheckCircle className="w-10 h-10 text-success" />
                       <div className="text-center">
-                        <p className="text-white font-medium">{selectedFile.name}</p>
-                        <p className="text-gray-500 text-xs mt-1">{(selectedFile.size / 1024).toFixed(1)} KB — click to change</p>
+                        <p className="text-slate-800 font-bold">{selectedFile.name}</p>
+                        <p className="text-slate-500 text-xs mt-1 font-medium">{(selectedFile.size / 1024).toFixed(1)} KB — click to change</p>
                       </div>
                     </>
                   ) : (
                     <>
                       <FileUp className="w-10 h-10 text-gray-500" />
                       <div className="text-center">
-                        <p className="text-gray-300 font-medium">Drop your resume here</p>
-                        <p className="text-gray-500 text-xs mt-1">PDF, DOCX, DOC, or TXT · Max 5MB</p>
+                        <p className="text-slate-600 font-bold">Drop your resume here</p>
+                        <p className="text-slate-400 text-xs mt-1 font-medium">PDF, DOCX, DOC, or TXT · Max 5MB</p>
                       </div>
                     </>
                   )}
@@ -234,8 +234,8 @@ export const StudentDashboard = () => {
                     <div className="space-y-3">
                       {matches.map((match, i) => (
                         <div key={i} className="bg-navy-900 p-3 rounded-lg border border-white/5">
-                          <div className="flex justify-between items-center mb-2">
-                            <span className="font-medium text-white">{match.companyName}</span>
+                          <div className="flex justify-between items-center mb-3">
+                            <span className="font-bold text-slate-800">{match.companyName}</span>
                             <span className={`text-xs px-2 py-0.5 rounded-full font-mono
                               ${match.matchScore > 75 ? 'bg-success/20 text-success'
                                 : match.matchScore > 50 ? 'bg-warning/20 text-warning'
