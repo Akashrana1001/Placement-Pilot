@@ -166,15 +166,15 @@ export class ReActOrchestrator {
       return { thought, action: null, actionInput: null, finalAnswer: rawJsonMatch[1].trim() };
     }
 
+    // ── Extract ACTION ──
+    const actionMatch = text.match(/Action:\s*(\w+)/i);
+    const action = actionMatch ? actionMatch[1].trim().replace(/[.,;:!?]+$/, '') : null;
+
     // ── Check if it output just a JSON string at the end ──
     const trailingJson = text.match(/(\{[\s\S]*?\})\s*$/);
     if (!actionMatch && trailingJson) {
       return { thought, action: null, actionInput: null, finalAnswer: trailingJson[1].trim() };
     }
-
-    // ── Extract ACTION ──
-    const actionMatch = text.match(/Action:\s*(\w+)/i);
-    const action = actionMatch ? actionMatch[1].trim().replace(/[.,;:!?]+$/, '') : null;
 
     // ── Extract ACTION_INPUT ──
     let actionInput = null;
