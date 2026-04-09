@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Rocket, Brain, Shield, Zap, Users, Target, ArrowRight, Star, Activity, ChevronDown, Sparkles } from 'lucide-react';
+import homepageImg from '../assets/homepage.png';
 
 // ── Typewriter ────────────────────────────────────────────────────────────────
 function Typewriter({ words }) {
@@ -152,9 +153,9 @@ export const LandingPage = () => {
           >
             <div className="relative rounded-3xl overflow-hidden shadow-2xl shadow-slate-300/40">
               <img
-                src="https://images.unsplash.com/photo-1485827404703-89b55fcc595e?w=800&q=80"
-                alt="Human hand reaching towards robot hand"
-                className="w-full h-[480px] object-cover"
+                src={homepageImg}
+                alt="PlacementPilot Interface"
+                className="w-full h-[480px] object-cover animate-float"
               />
               {/* Gradient overlay */}
               <div className="absolute inset-0 bg-gradient-to-t from-white/30 via-transparent to-transparent" />
