@@ -130,7 +130,7 @@ export const StudentDashboard = () => {
                   value={resumeText}
                   onChange={(e) => setResumeText(e.target.value)}
                   placeholder="Paste your resume text here... (Include skills, projects, education, experience)"
-                  className="w-full h-44 bg-navy-900 border border-white/10 rounded-lg p-4 text-gray-300 font-['JetBrains_Mono'] text-sm focus:border-cyber-cyan outline-none resize-none mb-4 transition-colors"
+                  className="w-full h-44 bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-900 font-['JetBrains_Mono'] text-sm focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none resize-none mb-4 transition-all shadow-inner"
                 />
                 <Button
                   className="w-full"

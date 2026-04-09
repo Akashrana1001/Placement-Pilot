@@ -159,7 +159,7 @@ export const MockInterview = () => {
                   <select
                     value={interviewType}
                     onChange={e => setType(e.target.value)}
-                    className="w-full bg-navy-900 border border-white/10 rounded-lg p-3 text-white focus:border-cyber-cyan outline-none appearance-none cursor-pointer"
+                    className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3.5 text-slate-900 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 outline-none appearance-none cursor-pointer shadow-sm"
                   >
                     <option value="technical">💻 Technical (DSA + OOP)</option>
                     <option value="hr">🤝 HR & Behavioural</option>
@@ -248,7 +248,7 @@ export const MockInterview = () => {
                 disabled={!!feedbackPanel}
                 placeholder={feedbackPanel ? 'Answer submitted ✓ — click the button to continue.' : 'Type your answer here... (be thorough, mention key concepts)'}
                 rows={5}
-                className="w-full bg-navy-900 border border-white/10 rounded-lg p-4 text-white resize-none outline-none focus:border-cyber-blue transition-colors disabled:opacity-40 disabled:cursor-not-allowed mb-4"
+                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-4 text-slate-900 placeholder:text-slate-400 font-medium resize-none outline-none focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 transition-all shadow-inner disabled:opacity-40 disabled:bg-slate-100 disabled:cursor-not-allowed mb-4"
               />
               <div className="flex justify-between items-center">
                 <span className="text-xs text-gray-500">{answer.length} characters</span>
