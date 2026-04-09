@@ -14,25 +14,36 @@ import { logger } from '../utils/logger.js';
 
 // ── Groq adapter ─────────────────────────────────────────────────────────────
 async function generateWithGroq(prompt) {
-  const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
+  const models = [
+    process.env.GROQ_MODEL || 'llama-3.1-8b-instant',
+    'llama-3.1-8b-instant',
+    'gemma2-9b-it',
+    'llama-3.2-3b-preview'
+  ];
 
-  const model = process.env.GROQ_MODEL || 'llama-3.3-70b-versatile';
-  const completion = await client.chat.completions.create({
-    model,
-    messages: [
-      {
-        role: 'user',
-        content: prompt
+  for (const model of models) {
+    try {
+      const client = new Groq({ apiKey: process.env.GROQ_API_KEY });
+      const completion = await client.chat.completions.create({
+        model,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.1,
+        max_tokens: 2048,
+        stop: ['Human:', 'User:']
+      });
+      const text = completion.choices?.[0]?.message?.content;
+      if (!text) throw new Error('Empty response');
+      logger.info(`✅ Used model: ${model}`);
+      return text;
+    } catch (err) {
+      if (err?.status === 429) {
+        logger.warn(`⚠️ Rate limit on ${model}, trying next...`);
+        continue;
       }
-    ],
-    temperature: 0.1,
-    max_tokens: 2048,
-    stop: ['Observation:', 'Human:', 'User:']
-  });
-
-  const text = completion.choices?.[0]?.message?.content;
-  if (!text) throw new Error('Empty response from Groq');
-  return text;
+      throw err;
+    }
+  }
+  throw new Error('All Groq models rate limited. Try again later.');
 }
 
 // ── Ollama adapter ────────────────────────────────────────────────────────────
