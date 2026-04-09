@@ -16,11 +16,10 @@ export const StudentDashboard = () => {
   const navigate = useNavigate();
   const fileInputRef = useRef(null);
   const redirecting = useRef(false);
-
-  const [resumeText, setResumeText]   = useState('');
-  const [activeJobId, setActiveJobId] = useState(null);
-  const [inputMode, setInputMode]     = useState('text'); // 'text' | 'file'
-  const [dragOver, setDragOver]       = useState(false);
+  const [resumeText, setResumeText]     = useState('');
+  const [activeJobId, setActiveJobId]   = useState(null);
+  const [inputMode, setInputMode]       = useState('text');
+  const [dragOver, setDragOver]         = useState(false);
   const [selectedFile, setSelectedFile] = useState(null);
 
   // ── Queries ──────────────────────────────────────────────────────────────
@@ -91,6 +90,7 @@ export const StudentDashboard = () => {
 
   // ── Auto-refresh after agent stream ends ──────────────────────────────────
   const { isStreaming } = useAgentStream(activeJobId);
+
   React.useEffect(() => {
     if (activeJobId && !isStreaming) {
       const timer = setTimeout(() => {
@@ -102,27 +102,36 @@ export const StudentDashboard = () => {
   }, [isStreaming, activeJobId, queryClient]);
 
   // ── Auto Redirect to Battle Plan ──────────────────────────────────────────
+  // ⭐ BUG FIX: Added `activeJobId &&` so redirect only happens after a fresh
+  //    upload — not every time the page loads when plan already exists.
   React.useEffect(() => {
-    if (analysis?.gapReport && progress?.planProgress?.totalTasks > 0 && !redirecting.current) {
+    if (
+      activeJobId &&
+      analysis?.gapReport &&
+      progress?.planProgress?.totalTasks > 0 &&
+      !redirecting.current
+    ) {
       redirecting.current = true;
       toast.success('⚔️ Your Battle Plan is ready!');
       setTimeout(() => navigate('/battle-plan'), 2000);
     }
-  }, [analysis, progress, navigate]);
+  }, [analysis, progress, navigate, activeJobId]);
 
-  const gapReport = analysis?.gapReport;
-  const matches   = analysis?.companyMatches;
+  const gapReport   = analysis?.gapReport;
+  const matches     = analysis?.companyMatches;
   const isUploading = uploadResume.isPending || uploadResumeFile.isPending;
 
   return (
-    <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="grid grid-cols-1 lg:grid-cols-12 gap-6"
+    >
       {/* LEFT COLUMN */}
       <div className="lg:col-span-7 space-y-6">
 
         {/* ── Resume Upload Card ── */}
         <GlassCard title="📄 Upload Your Resume" icon={FileText}>
-
           {/* Mode Toggle */}
           <div className="flex gap-1 p-1 bg-navy-950 rounded-lg mb-4 w-fit border border-white/5">
             {['text', 'file'].map(mode => (
@@ -163,7 +172,6 @@ export const StudentDashboard = () => {
             {/* ── File Upload Mode ── */}
             {inputMode === 'file' && (
               <motion.div key="file" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-                {/* Drop Zone */}
                 <div
                   onDragOver={(e) => { e.preventDefault(); setDragOver(true); }}
                   onDragLeave={() => setDragOver(false)}
@@ -188,7 +196,9 @@ export const StudentDashboard = () => {
                       <CheckCircle className="w-10 h-10 text-success" />
                       <div className="text-center">
                         <p className="text-slate-800 font-bold">{selectedFile.name}</p>
-                        <p className="text-slate-500 text-xs mt-1 font-medium">{(selectedFile.size / 1024).toFixed(1)} KB — click to change</p>
+                        <p className="text-slate-500 text-xs mt-1 font-medium">
+                          {(selectedFile.size / 1024).toFixed(1)} KB — click to change
+                        </p>
                       </div>
                     </>
                   ) : (
@@ -201,7 +211,6 @@ export const StudentDashboard = () => {
                     </>
                   )}
                 </div>
-
                 <Button
                   className="w-full"
                   isLoading={uploadResumeFile.isPending}
@@ -224,8 +233,12 @@ export const StudentDashboard = () => {
                 <div>
                   <h4 className="text-sm text-gray-400 mb-2">Critical Gaps</h4>
                   <div className="flex flex-wrap gap-2">
-                    {(gapReport.criticalGaps || []).map((g, i) => <StatusBadge key={i} variant="critical" text={g} pulse />)}
-                    {(!gapReport.criticalGaps || gapReport.criticalGaps.length === 0) && <span className="text-gray-500 text-sm">None detected</span>}
+                    {(gapReport.criticalGaps || []).map((g, i) => (
+                      <StatusBadge key={i} variant="critical" text={g} pulse />
+                    ))}
+                    {(!gapReport.criticalGaps || gapReport.criticalGaps.length === 0) && (
+                      <span className="text-gray-500 text-sm">None detected</span>
+                    )}
                   </div>
                 </div>
 
@@ -233,13 +246,17 @@ export const StudentDashboard = () => {
                   <div>
                     <h4 className="text-sm text-gray-400 mb-2">Strong Areas</h4>
                     <div className="flex flex-wrap gap-2">
-                      {(gapReport.strongAreas || []).map((s, i) => <StatusBadge key={i} variant="success" text={s} />)}
+                      {(gapReport.strongAreas || []).map((s, i) => (
+                        <StatusBadge key={i} variant="success" text={s} />
+                      ))}
                     </div>
                   </div>
                   <div>
                     <h4 className="text-sm text-gray-400 mb-2">Weak Areas</h4>
                     <div className="flex flex-wrap gap-2">
-                      {(gapReport.weakAreas || []).map((w, i) => <StatusBadge key={i} variant="warning" text={w} />)}
+                      {(gapReport.weakAreas || []).map((w, i) => (
+                        <StatusBadge key={i} variant="warning" text={w} />
+                      ))}
                     </div>
                   </div>
                 </div>
@@ -254,21 +271,29 @@ export const StudentDashboard = () => {
                           <div className="flex justify-between items-center mb-3">
                             <span className="font-bold text-slate-800">{match.companyName}</span>
                             <span className={`text-xs px-2 py-0.5 rounded-full font-mono
-                              ${match.matchScore > 75 ? 'bg-success/20 text-success'
-                                : match.matchScore > 50 ? 'bg-warning/20 text-warning'
-                                : 'bg-danger/20 text-danger'}`}>
+                              ${match.matchScore > 75
+                                ? 'bg-success/20 text-success'
+                                : match.matchScore > 50
+                                  ? 'bg-warning/20 text-warning'
+                                  : 'bg-danger/20 text-danger'}`}>
                               {match.matchScore}% Match
                             </span>
                           </div>
                           <div className="w-full bg-navy-950 rounded-full h-1.5 mb-2">
                             <div
                               className={`h-1.5 rounded-full transition-all duration-700
-                                ${match.matchScore > 75 ? 'bg-success' : match.matchScore > 50 ? 'bg-warning' : 'bg-danger'}`}
+                                ${match.matchScore > 75
+                                  ? 'bg-success'
+                                  : match.matchScore > 50
+                                    ? 'bg-warning'
+                                    : 'bg-danger'}`}
                               style={{ width: `${match.matchScore}%` }}
                             />
                           </div>
                           {match.missingSkills?.length > 0 && (
-                            <p className="text-xs text-danger">Missing: {match.missingSkills.join(', ')}</p>
+                            <p className="text-xs text-danger">
+                              Missing: {match.missingSkills.join(', ')}
+                            </p>
                           )}
                         </div>
                       ))}
@@ -276,9 +301,11 @@ export const StudentDashboard = () => {
                   </div>
                 )}
 
+                {/* Battle Plan Status */}
                 {(!progress?.planProgress || progress.planProgress.totalTasks === 0) ? (
                   <div className="flex bg-slate-100 p-4 rounded-xl items-center gap-3 w-full justify-center text-slate-600 font-bold mb-4 animate-pulse">
-                    <Loader2 className="w-5 h-5 animate-spin" /> Generating your customized Battle Plan... Please wait.
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                    Generating your customized Battle Plan... Please wait.
                   </div>
                 ) : (
                   <Button
@@ -305,19 +332,26 @@ export const StudentDashboard = () => {
         <div className="grid grid-cols-2 gap-4">
           <GlassCard className="p-4 flex flex-col items-center text-center">
             <CheckCircle className="w-6 h-6 text-success mb-2" />
-            <span className="text-2xl font-bold">{progress?.planProgress?.tasksCompleted || 0}</span>
+            <span className="text-2xl font-bold">
+              {progress?.planProgress?.tasksCompleted || 0}
+            </span>
             <span className="text-xs text-gray-400">Tasks Done</span>
           </GlassCard>
+
           <GlassCard className="p-4 flex flex-col items-center text-center">
             <Target className="w-6 h-6 text-cyber-blue mb-2" />
-            <span className="text-2xl font-bold">{progress?.avgInterviewScore || 0}/10</span>
+            <span className="text-2xl font-bold">
+              {progress?.avgInterviewScore || 0}/10
+            </span>
             <span className="text-xs text-gray-400">Avg Score</span>
           </GlassCard>
+
           <GlassCard className="p-4 flex flex-col items-center text-center">
             <Zap className={`w-6 h-6 mb-2 ${(progress?.riskScore || 0) > 60 ? 'text-danger' : 'text-warning'}`} />
             <span className="text-2xl font-bold">{progress?.riskScore || 0}</span>
             <span className="text-xs text-gray-400">Risk Score</span>
           </GlassCard>
+
           <GlassCard className="p-4 flex flex-col items-center text-center">
             <Users className="w-6 h-6 text-cyber-cyan mb-2" />
             <span className="text-2xl font-bold">{progress?.totalInterviews || 0}</span>
@@ -325,7 +359,6 @@ export const StudentDashboard = () => {
           </GlassCard>
         </div>
       </div>
-
     </motion.div>
   );
 };
