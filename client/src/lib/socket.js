@@ -5,7 +5,10 @@ let socket = null;
 export const connectSocket = (token) => {
   if (!socket) {
     const socketUrl = import.meta.env.VITE_SOCKET_URL || '/';
-    socket = io(socketUrl, { auth: { token } });
+    socket = io(socketUrl, { 
+      auth: { token },
+      transports: ['websocket', 'polling']
+    });
   }
   return socket;
 };
