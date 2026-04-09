@@ -3,7 +3,7 @@
  *
  * Fixed: FINAL_ANSWER detection, tool result unwrapping, max-iteration fallback.
  */
-import { ollama } from '../config/ollama.js';
+import { ollama } from '../config/llm.js'; // auto-routes: Groq (prod) or Ollama (local)
 import { logger } from '../utils/logger.js';
 import { redis as pubsub } from '../config/redis.js';
 
