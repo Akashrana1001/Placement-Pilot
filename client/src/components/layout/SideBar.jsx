@@ -25,20 +25,23 @@ export const Sidebar = () => {
     <aside 
       onMouseEnter={() => setExpanded(true)}
       onMouseLeave={() => setExpanded(false)}
-      className={`fixed left-0 top-16 h-[calc(100vh-4rem)] glassmorphism border-y-0 border-l-0 rounded-none transition-all duration-300 z-40 flex flex-col ${expanded ? 'w-60' : 'w-16'}`}
+      className={`fixed left-0 top-16 h-[calc(100vh-4rem)] bg-white/70 backdrop-blur-2xl border-r border-slate-100 transition-all duration-300 z-40 flex flex-col ${expanded ? 'w-56' : 'w-16'}`}
     >
-      <div className="flex-1 py-6 flex flex-col gap-2 px-3">
+      <div className="flex-1 py-6 flex flex-col gap-1 px-2">
         {links.map(({ to, icon: Icon, label }) => (
-          <NavLink key={to} to={to} className={({ isActive }) => `flex items-center gap-4 px-3 py-3 rounded-lg transition-colors ${isActive ? 'bg-cyber-cyan/10 text-cyber-cyan border-l-2 border-cyber-cyan' : 'text-gray-400 hover:text-white hover:bg-white/5 border-l-2 border-transparent'}`}>
+          <NavLink key={to} to={to} className={({ isActive }) => `flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all duration-200
+            ${isActive 
+              ? 'bg-sky-50 text-sky-600 font-medium border border-sky-100' 
+              : 'text-slate-400 hover:text-slate-700 hover:bg-slate-50 border border-transparent'}`}>
             <Icon className="w-5 h-5 shrink-0" />
-            <span className={`whitespace-nowrap transition-opacity duration-300 ${expanded ? 'opacity-100' : 'opacity-0 overflow-hidden'}`}>{label}</span>
+            <span className={`whitespace-nowrap text-sm transition-opacity duration-300 ${expanded ? 'opacity-100' : 'opacity-0 overflow-hidden'}`}>{label}</span>
           </NavLink>
         ))}
       </div>
-      <div className="p-3 border-t border-white/10">
-        <a href="http://localhost:5000/admin/queues" target="_blank" rel="noreferrer" className="flex items-center gap-4 px-3 py-3 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors">
+      <div className="p-2 border-t border-slate-100">
+        <a href="http://localhost:5000/admin/queues" target="_blank" rel="noreferrer" className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-50 transition-all">
           <ExternalLink className="w-5 h-5 shrink-0" />
-          <span className={`whitespace-nowrap transition-opacity duration-300 ${expanded ? 'opacity-100' : 'opacity-0 overflow-hidden'}`}>Queue Dashboard</span>
+          <span className={`whitespace-nowrap text-sm transition-opacity duration-300 ${expanded ? 'opacity-100' : 'opacity-0 overflow-hidden'}`}>Queue Dashboard</span>
         </a>
       </div>
     </aside>

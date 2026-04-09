@@ -1,11 +1,11 @@
 import React from 'react';
 
 export const GlassCard = ({ children, className = '', title, icon: Icon }) => (
-  <div className={`glassmorphism p-6 ${className}`}>
+  <div className={`bg-white/80 backdrop-blur-xl border border-slate-100 rounded-2xl shadow-sm p-6 ${className}`}>
     {(title || Icon) && (
-      <div className="flex items-center gap-3 mb-4 pb-4 border-b border-white/10">
-        {Icon && <Icon className="w-5 h-5 text-cyber-cyan" />}
-        {title && <h3 className="text-lg font-semibold tracking-wide">{title}</h3>}
+      <div className="flex items-center gap-3 mb-4 pb-4 border-b border-slate-100">
+        {Icon && <Icon className="w-5 h-5 text-sky-500" />}
+        {title && <h3 className="text-base font-semibold text-slate-800">{title}</h3>}
       </div>
     )}
     {children}
