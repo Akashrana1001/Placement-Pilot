@@ -78,7 +78,13 @@ const worker = new Worker('agent-jobs', async (job) => {
     jobId: job.id
   });
 
-  const result = await orchestrator.run(input);
+  let result;
+  try {
+    result = await orchestrator.run(input);
+  } catch (err) {
+    logger.error(`❌ Agent Orchestrator Error [${agentType}]: ${err.message}`);
+    throw err; // Let BullMQ handle retry/failure logic
+  }
 
   // ⭐ FIX: Guard against orchestrator returning undefined/null
   if (!result || !result.finalAnswer) {

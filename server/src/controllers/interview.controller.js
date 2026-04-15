@@ -5,6 +5,7 @@
  * Evaluation is keyword-matching — no Ollama needed.
  */
 import { MockInterview } from '../models/MockInterview.js';
+import { asyncHandler } from '../utils/asyncHandler.js';
 
 // ── FULL QUESTION BANK ──────────────────────────────────────────────────────
 const QUESTION_BANK = {
@@ -58,102 +59,96 @@ function scoreAnswer(answer, expectedKeywords) {
 // POST /student/interview/start
 // Returns the first question instantly — NO LLM call
 // ──────────────────────────────────────────────────────────────────────────
-export const startInterview = async (req, res, next) => {
-  try {
-    const interviewType = (req.body.type || 'technical').toLowerCase().replace(' ', '-');
-    const pool = QUESTION_BANK[interviewType] || QUESTION_BANK.technical;
+export const startInterview = asyncHandler(async (req, res, next) => {
+  const interviewType = (req.body.type || 'technical').toLowerCase().replace(' ', '-');
+  const pool = QUESTION_BANK[interviewType] || QUESTION_BANK.technical;
 
-    // Shuffle and pick 5 questions for the session
-    const shuffled = [...pool].sort(() => Math.random() - 0.5);
-    const sessionQuestions = shuffled.slice(0, Math.min(5, shuffled.length));
+  // Shuffle and pick 5 questions for the session
+  const shuffled = [...pool].sort(() => Math.random() - 0.5);
+  const sessionQuestions = shuffled.slice(0, Math.min(5, shuffled.length));
 
-    // Store session in-process (for hackathon). 
-    // In production this would go into Redis with a sessionId key.
-    const sessionId = `arena-${Date.now()}-${req.user._id}`;
+  // Store session in-process (for hackathon).
+  // In production this would go into Redis with a sessionId key.
+  const sessionId = `arena-${Date.now()}-${req.user._id}`;
 
-    // Store the session questions on the response and client manages state
-    res.status(200).json({
-      success: true,
-      data: {
-        sessionId,
-        interviewType,
-        totalQuestions: sessionQuestions.length,
-        questions: sessionQuestions.map((q, i) => ({
-          index: i,
-          question: q.q,
-          topic: q.topic,
-          expectedKeywords: q.expected
-        }))
-      }
-    });
-  } catch (err) { next(err); }
-};
+  // Store the session questions on the response and client manages state
+  res.status(200).json({
+    success: true,
+    data: {
+      sessionId,
+      interviewType,
+      totalQuestions: sessionQuestions.length,
+      questions: sessionQuestions.map((q, i) => ({
+        index: i,
+        question: q.q,
+        topic: q.topic,
+        expectedKeywords: q.expected
+      }))
+    }
+  });
+});
 
 // ──────────────────────────────────────────────────────────────────────────
 // POST /student/interview/evaluate
 // Evaluates a single answer deterministically — NO LLM call
 // ──────────────────────────────────────────────────────────────────────────
-export const evaluateAnswer = async (req, res, next) => {
-  try {
-    const { answer, expectedKeywords } = req.body;
-    if (!answer) return res.status(400).json({ success: false, message: 'answer is required' });
+export const evaluateAnswer = asyncHandler(async (req, res, next) => {
+  const { answer, expectedKeywords } = req.body;
+  if (!answer) return res.status(400).json({ success: false, message: 'answer is required' });
 
-    // ⭐ FIX: Call scoreAnswer (internal helper), not evaluateAnswer (self)
-    const result = scoreAnswer(answer, expectedKeywords || []);
-    res.status(200).json({ success: true, data: result });
-  } catch (err) { next(err); }
-};
+  // ⭐ FIX: Call scoreAnswer (internal helper), not evaluateAnswer (self)
+  const result = scoreAnswer(answer, expectedKeywords || []);
+  res.status(200).json({ success: true, data: result });
+});
 
 // ──────────────────────────────────────────────────────────────────────────
 // POST /student/interview/complete
 // Saves the final session summary to MongoDB
 // ──────────────────────────────────────────────────────────────────────────
-export const completeInterview = async (req, res, next) => {
-  try {
-    const { interviewType, answeredQuestions } = req.body;
-    // answeredQuestions: [{question, topic, studentAnswer, score, feedback}]
-    if (!answeredQuestions || !Array.isArray(answeredQuestions)) {
-      return res.status(400).json({ success: false, message: 'answeredQuestions array is required' });
-    }
+export const completeInterview = asyncHandler(async (req, res, next) => {
+  const { interviewType, answeredQuestions } = req.body;
+  // answeredQuestions: [{question, topic, studentAnswer, score, feedback}]
+  if (!answeredQuestions || !Array.isArray(answeredQuestions)) {
+    return res.status(400).json({ success: false, message: 'answeredQuestions array is required' });
+  }
 
-    const overallScore = answeredQuestions.length > 0
-      ? Math.round(answeredQuestions.reduce((acc, q) => acc + (q.score || 0), 0) / answeredQuestions.length)
-      : 0;
+  const overallScore = answeredQuestions.length > 0
+    ? Math.round(answeredQuestions.reduce((acc, q) => acc + (q.score || 0), 0) / answeredQuestions.length)
+    : 0;
 
-    const scoreLabel = overallScore >= 8 ? 'Excellent' : overallScore >= 6 ? 'Good' : overallScore >= 4 ? 'Average' : 'Needs Improvement';
+  const scoreLabel = overallScore >= 8 ? 'Excellent' : overallScore >= 6 ? 'Good' : overallScore >= 4 ? 'Average' : 'Needs Improvement';
 
-    const strengths   = answeredQuestions.filter(q => q.score >= 7).map(q => q.topic);
-    const weaknesses  = answeredQuestions.filter(q => q.score < 5).map(q => q.topic);
+  const strengths   = answeredQuestions.filter(q => q.score >= 7).map(q => q.topic);
+  const weaknesses  = answeredQuestions.filter(q => q.score < 5).map(q => q.topic);
 
-    const interview = await MockInterview.create({
-      userId: req.user._id,
-      type: interviewType || 'technical',
-      questions: answeredQuestions.map(q => ({
-        question: q.question,
-        topic: q.topic,
-        difficulty: 'medium',
-        studentAnswer: q.studentAnswer,
-        score: q.score,
-        feedback: q.feedback
-      })),
+  const interview = await MockInterview.create({
+    userId: req.user._id,
+    type: interviewType || 'technical',
+    questions: answeredQuestions.map(q => ({
+      question: q.question,
+      topic: q.topic,
+      difficulty: 'medium',
+      studentAnswer: q.studentAnswer,
+      score: q.score,
+      feedback: q.feedback
+    })),
+    overallScore,
+    strengths: [...new Set(strengths)],
+    weaknesses: [...new Set(weaknesses)],
+    recommendation: `Score: ${overallScore}/10 (${scoreLabel}). ${weaknesses.length > 0 ? `Focus on: ${[...new Set(weaknesses)].join(', ')}` : 'Great performance across all topics!'}`
+  });
+
+  res.status(201).json({
+    success: true,
+    data: {
       overallScore,
-      strengths: [...new Set(strengths)],
-      weaknesses: [...new Set(weaknesses)],
-      recommendation: `Score: ${overallScore}/10 (${scoreLabel}). ${weaknesses.length > 0 ? `Focus on: ${[...new Set(weaknesses)].join(', ')}` : 'Great performance across all topics!'}`
-    });
-
-    res.status(201).json({
-      success: true,
-      data: {
-        overallScore,
-        recommendation: interview.recommendation,
-        strengths: interview.strengths,
-        weaknesses: interview.weaknesses,
-        interviewId: interview._id
-      }
-    });
-  } catch (err) { next(err); }
-};
+      recommendation: interview.recommendation,
+      strengths: interview.strengths,
+      weaknesses: interview.weaknesses,
+      interviewId: interview._id
+    }
+  });
+});
 
 // Keep legacy endpoints for backwards compatibility
 export const submitAnswer  = async (req, res) => res.status(410).json({ success: false, message: 'Use /interview/evaluate instead' });
