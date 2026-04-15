@@ -9,6 +9,12 @@ const createLimiter = (minutes, maxRequests, message) => {
     standardHeaders: true,
     legacyHeaders: false,
     message: { success: false, message },
+    keyGenerator: (req) => {
+      if (req.user?._id) return req.user._id.toString();
+      const forwardedFor = req.headers['x-forwarded-for'];
+      const ip = typeof forwardedFor === 'string' ? forwardedFor.split(',')[0].trim() : req.ip;
+      return ip || ipKeyGenerator(req);
+    },
     store: new RedisStore({
       sendCommand: (...args) => redis.call(...args),
     }),
@@ -29,7 +35,12 @@ export const agentLimiter = rateLimit({
   standardHeaders: true,
   legacyHeaders: false,
   message: { success: false, message: 'Agent processing limit reached. Please wait.' },
-  keyGenerator: (req) => req.user?._id?.toString() || ipKeyGenerator(req), // ✅ Fixed IPv6
+  keyGenerator: (req) => {
+    if (req.user?._id) return req.user._id.toString();
+    const forwardedFor = req.headers['x-forwarded-for'];
+    const ip = typeof forwardedFor === 'string' ? forwardedFor.split(',')[0].trim() : req.ip;
+    return ip || ipKeyGenerator(req);
+  },
   store: new RedisStore({
     sendCommand: (...args) => redis.call(...args),
   }),
