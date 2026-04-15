@@ -63,7 +63,7 @@ export const setupPubSubBridge = () => {
       const io = getIO();
 
       if (channel === 'tpc:alerts') {
-        io.to('tpc').emit('tpc:alert', data);
+        io.to('tpc').emit('tpc:alerts', data);
         logger.info(`🚨 TPC alert forwarded via Socket.io`);
       }
     } catch (err) {
