@@ -1,89 +1,109 @@
-# 🚀 PlacementPilot: Autonomous Agentic Career Coach
+# Placement Pilot
 
-PlacementPilot is a production-grade, AI-driven placement preparation ecosystem designed to bridge the gap between overwhelmed university placement cells (TPCs) and underprepared students. 
+**A custom ReAct multi-agent system that autonomously monitors student placement readiness and fires real-time alerts — built without LangChain, runs fully air-gapped.**
 
-Unlike standard "GenAI chatbots," PlacementPilot is a **proactive, multi-agent engine** powered by a custom ReAct orchestrator, background job queues, and real-time telemetry. It runs entirely locally, ensuring 100% data privacy and zero API costs.
-
----
-
-## ⚠️ The Problem
-University placement architectures are fundamentally flawed:
-1. **The Scale Problem:** 1 placement officer cannot personalize career trajectories for 1,000+ students.
-2. **The Discovery Problem:** Students only realize their technical gaps *after* they fail their first real interview.
-3. **The Reactive AI Problem:** Existing AI tools wait for students to ask questions. If a student is slacking, a chatbot won't warn the teacher.
-
-## 💡 The Solution
-PlacementPilot solves these problems through an **Autonomous Multi-Agent Architecture**:
-- **Recon Agent:** Analyzes resumes, reverse-engineers industry requirements, and finds critical skill gaps.
-- **Strategy Agent:** Generates personalized, week-by-week battle plans to fix those gaps before interview season.
-- **Sentinel Agent:** An autonomous background cron job that monitors student performance and physically alerts the TPC Dashboard if a student's "Risk Score" drifts into the danger zone.
----
-## 🌟 Key Features
-
-### 🎓 For Students
-- **Deep Resume Analysis:** Upload your resume and watch the LLM's "Thought Stream" in real-time as it parses your data, queries its skill database, and evaluates your hireability.
-- **Actionable Gap Reports:** See exactly what technologies you are missing for your target companies.
-- **Personalized Battle Plans:** Get daily/weekly tasks automatically generated to fix your weaknesses.
-
-### 🏛️ For TPC Admins (Teachers)
-- **Global Sentinel Dashboard:** Stop manually checking on students. The autonomous Sentinel Agent runs in the background. If a student falls behind, an automated **Socket.io** alert flashes on your dashboard in real-time.
-- **Enterprise Queue Management:** View the built-in BullMQ dashboard to see exactly what the AI server is processing, providing full transparency and control over AI workloads.
 
 ---
 
-## 🏗️ System Design & Architecture
+## The Problem
 
-PlacementPilot was built with **Enterprise / Production-Grade Resiliency** in mind. It uses an asynchronous event-driven architecture to prevent AI workloads from blocking the web server.
+University placement cells are broken at scale:
 
-### The Tech Stack
-* **Frontend:** React, Vite, TailwindCSS, TanStack Query, Socket.io-client, Framer Motion
-* **Backend:** Node.js (ESM), Express, MongoDB (Mongoose)
-* **Message Broker / Cache:** Redis, BullMQ
-* **AI Engine:** Local Ollama (Qwen2.5:3b), Custom Hand-Written ReAct Orchestrator
-
-### 🔄 The Data Flow
-1. **Decoupled API:** When a student uploads a resume, the Node API returns immediately. It passes the heavy lifting payload to a **BullMQ Queue**.
-2. **Background AI Workers:** A dedicated `agent.worker.js` node consumes jobs from the queue. This ensures the main web server never crashes or blocks, even if 1,000 students upload resumes concurrently.
-3. **The Antigravity Shield:** The worker passes data to our custom ReAct LLM Orchestrator. The orchestrator uses extreme defensive programming ("Antigravity Shield") to validate tool parameters, ensuring that even if the small 3B LLM hallucinates malformed JSON, the server gracefully recovers instead of crashing.
-4. **Real-time Pub/Sub:** As the background worker reasons through the problem ("Thought Stream," tool calls), it publishes its state to a **Redis Pub/Sub** channel. 
-5. **WebSocket Telemetry:** The main Express server subscribes to Redis and pipes the stream directly to the React frontend via **Socket.io**.
+- 1 placement officer cannot personally track 1,000+ students
+- Students only discover their skill gaps after failing their first real interview
+- Existing AI tools are reactive — they wait to be asked. They never warn anyone
 
 ---
 
-## 🛡️ Why This is "Production-Grade"
+## The Solution
 
-Standard hackathon projects make synchronous API calls to OpenAI and crash when 5 people click a button. **PlacementPilot is built differently:**
+Placement Pilot is a proactive multi-agent system that monitors every student continuously, identifies risk before interview season, and alerts the placement team automatically — with zero manual intervention.
 
-1. **Defensive ReAct Loop:** We didn't rely on bloated frameworks like LangChain. We wrote a custom agentic loop that intercepts LLM hallucinations, sanitizes inputs, unwraps execution envelopes, and implements max-iteration fallbacks.
-2. **Job Queues (BullMQ):** AI tasks take 10-15 seconds. By tossing them into a BullMQ queue, we guarantee zero dropped requests and provide automatic retry mechanisms on failure.
-3. **No Database Blocking:** Instead of polling MongoDB every 2 seconds to check if the AI is done, we use Redis Pub/Sub and WebSockets. The database is only touched twice: once to read the input, and once to save the final answer.
-4. **Autonomous Crons:** The `sentinel.cron.js` operates completely independent of user interaction, creating true "Agentic" behavior that monitors the ecosystem 24/7.
-5. **Local Inference:** Completely air-gapped processing via Ollama. No PII (resumes, emails, grades) ever leaves the university's network.
+**No LangChain. No OpenAI API. Fully air-gapped via local Ollama inference. Zero PII leaves the network. Zero API cost.**
 
 ---
 
-## 🏁 How to Run Locally
+## The Three Agents
 
-*Requires Redis, MongoDB, and Ollama (with `qwen2.5:3b` pulled) running on your machine.*
+| Agent | Role |
+|---|---|
+| **Recon** | Parses resume, reverse-engineers industry requirements, identifies critical skill gaps |
+| **Strategy** | Generates a personalized week-by-week action plan to close those gaps |
+| **Sentinel** | Autonomous background cron that monitors student risk scores 24/7 and fires real-time alerts to the TPC dashboard via Socket.io |
 
-You need three terminal windows:
+---
 
-**1. Start the API & WebSocket Server:**
-\`\`\`bash
-cd server
-npm run dev
-\`\`\`
+## Architecture
 
-**2. Start the AI Background Worker:**
-\`\`\`bash
-cd server
-npm run worker
-\`\`\`
+```
+React (Vite) ◄──Socket.io──► Node.js / Express
+                                    │
+                          BullMQ Job Queue (Redis)
+                                    │
+                          agent.worker.js (dedicated process)
+                                    │
+                          Custom ReAct Orchestrator
+                                    │
+                          Ollama — Qwen2.5:3b (local inference)
+                                    │
+                          Redis Pub/Sub ──► WebSocket ──► Frontend
+```
 
-**3. Start the Frontend UI:**
-\`\`\`bash
-cd client
-npm run dev
-\`\`\`
+---
 
-*The application will be running at `http://localhost:5173`.*
+## Key Engineering Decisions
+
+**Custom ReAct loop without LangChain** — wrote the full agentic orchestrator from scratch. Intercepts LLM hallucinations, sanitizes malformed JSON, implements max-iteration fallbacks. More control, less overhead, no vendor lock-in.
+
+**Decoupled AI worker process** — AI jobs run in a dedicated `agent.worker.js` process via BullMQ. The main Express server stays non-blocking even under concurrent load. Zero dropped requests.
+
+**Redis Pub/Sub + WebSockets for streaming** — as the agent reasons through a problem, its thought stream publishes to Redis. The Express server pipes it live to the React frontend. The database is touched exactly twice: once to read input, once to save output.
+
+**Sentinel cron — true autonomous behavior** — `sentinel.cron.js` runs completely independent of any user action. It monitors the ecosystem 24/7 and fires Socket.io alerts to the TPC dashboard when a student's risk score crosses a threshold.
+
+**Fully air-gapped** — local Ollama inference (Qwen2.5:3b). No resume, email, or grade ever leaves the university network.
+
+---
+
+## Stack
+
+| Layer | Tech |
+|---|---|
+| Frontend | React, Vite, Tailwind CSS, TanStack Query, Socket.io-client |
+| Backend | Node.js (ESM), Express, MongoDB, Mongoose |
+| Queue | BullMQ, Redis |
+| AI Engine | Custom ReAct Orchestrator, Ollama (Qwen2.5:3b) |
+| Real-time | Redis Pub/Sub, Socket.io, WebSockets |
+
+---
+
+## Why This Is Production-Grade
+
+Most AI projects make a synchronous API call and crash when 5 people click at once.
+
+This system handles concurrent load via job queues, streams live agent reasoning to the frontend without polling, runs autonomous background processes independent of user sessions, and processes sensitive data entirely on-device.
+
+---
+
+## Local Setup
+
+Requires Redis, MongoDB, and Ollama with `qwen2.5:3b` pulled locally.
+
+```bash
+# Terminal 1 — API and WebSocket server
+cd server && npm run dev
+
+# Terminal 2 — AI background worker
+cd server && npm run worker
+
+# Terminal 3 — Frontend
+cd client && npm run dev
+```
+
+App runs at `http://localhost:5173`
+
+---
+
+## What I Can Build For You
+
+If you need a custom multi-agent system, an autonomous monitoring pipeline, or a real-time AI backend — [let's talk](mailto:sandeepakash537@gmail.com).
