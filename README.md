@@ -2,7 +2,7 @@
 
 **An autonomous, privacy-first agentic career coach that continuously monitors student placement readiness and fires real-time risk alerts to the placement cell — for universities tracking thousands of students with a handful of officers.**
 
-[**▶ Live Demo**](https://YOUR-DEMO-URL.vercel.app) &nbsp;·&nbsp; [![GitHub](https://img.shields.io/badge/GitHub-repo-181717?logo=github)](https://github.com/YOUR-USER/YOUR-REPO)
+[**▶ Live Demo**][(https://YOUR-DEMO-URL.vercel.app](https://hackathonmain.vercel.app/)) &nbsp;·&nbsp; [![GitHub](https://img.shields.io/badge/GitHub-repo-181717?logo=github)](https://github.com/YOUR-USER/YOUR-REPO)
 
 <!-- TODO: replace the demo URL + GitHub badge link above with the real ones -->
 
