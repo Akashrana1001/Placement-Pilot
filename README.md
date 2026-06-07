@@ -47,7 +47,7 @@ These are verifiable from the code; performance and accuracy have **not** been f
 Requires Redis, MongoDB, Node 18+, Python 3.10+, and either a `GROQ_API_KEY` or Ollama with `qwen2.5:3b` pulled.
 
 ```bash
-git clone <your-repo-url> && cd Placement-Hack-main
+git clone https://github.com/Akashrana1001/Placement-Pilot && cd Placement-Hack-main
 
 # Env: copy and fill MONGODB_URI, REDIS_URL, JWT_SECRET, and GROQ_API_KEY
 #      (omit GROQ_API_KEY to fall back to local Ollama)
